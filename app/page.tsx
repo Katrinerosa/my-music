@@ -13,6 +13,10 @@ type ApiGenre = {
   picture_medium: string;
 };
 
+type LastfmUserResponse = {
+  user: string | null;
+};
+
 const GradientMaskIcon = ({
   src,
   size = 20,
@@ -48,6 +52,7 @@ const toSlug = (value: string) =>
 export default function Home() {
   const [openGenre, setOpenGenre] = useState<string | null>(null);
   const [orderedGenres, setOrderedGenres] = useState(genres);
+  const [lastfmUser, setLastfmUser] = useState<string | null>(null);
   const [genreImages, setGenreImages] = useState<
     Record<string, string | undefined>
   >({});
@@ -89,6 +94,21 @@ export default function Home() {
     loadGenres();
   }, []);
 
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const response = await fetch("/api/lastfm/user");
+        if (!response.ok) return;
+        const payload = (await response.json()) as LastfmUserResponse;
+        setLastfmUser(payload.user ?? null);
+      } catch {
+        // Ignore user lookup failures.
+      }
+    };
+
+    loadUser();
+  }, []);
+
   return (
     <main className="mx-auto flex min-h-[1173px] w-full max-w-[600px] flex-col px-6 pb-10 pt-6">
       <div className="mb-3 flex items-center justify-between">
@@ -112,9 +132,22 @@ export default function Home() {
       </div>
 
       <div className="mb-[45px] flex items-center justify-between">
-        <h1 className="bg-gradient-to-r from-[#EE0979] to-[#FF6A00] bg-clip-text text-[36px] font-bold text-transparent">
-          Categories
-        </h1>
+        <div>
+          <h1 className="bg-gradient-to-r from-[#EE0979] to-[#FF6A00] bg-clip-text text-[36px] font-bold text-transparent">
+            Categories
+          </h1>
+          {lastfmUser ? (
+            <div className="mt-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-black/60 dark:text-white/70">
+              Logged in as {lastfmUser}
+            </div>
+          ) : null}
+        </div>
+        <Link
+          href="/login"
+          className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/70 dark:text-white/70"
+        >
+          {lastfmUser ? "Account" : "Login"}
+        </Link>
       </div>
 
       <div className="space-y-4">

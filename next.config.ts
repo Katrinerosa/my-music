@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "api.deezer.com",
       },
+      {
+        protocol: "https",
+        hostname: "lastfm.freetls.fastly.net",
+      },
+      {
+        protocol: "https",
+        hostname: "lastfm-img2.akamaized.net",
+      },
     ],
   },
 };

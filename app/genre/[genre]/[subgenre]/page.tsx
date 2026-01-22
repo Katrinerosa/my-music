@@ -1,17 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { genres as localGenres } from "@/app/data/genres";
 
 type Track = {
-  id: number;
-  title: string;
-  duration: number;
-  artist: {
-    name: string;
-  };
-  album: {
-    cover_small: string;
-  };
+  name: string;
+  duration?: number;
+  artist: string;
+  image?: string;
 };
 
 const formatDuration = (seconds: number) => {
@@ -26,9 +22,15 @@ const toSlug = (value: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-const fetchTracks = async (query: string) => {
+const fetchTracks = async (tag: string) => {
+  const headerList = await headers();
+  const host = headerList.get("host") ?? "localhost:3000";
+  const protocol =
+    headerList.get("x-forwarded-proto") ??
+    (host.startsWith("localhost") ? "http" : "https");
+  const baseUrl = `${protocol}://${host}`;
   const response = await fetch(
-    `https://api.deezer.com/search?q=${encodeURIComponent(query)}`,
+    `${baseUrl}/api/lastfm/loved-tracks?tag=${encodeURIComponent(tag)}`,
     { cache: "no-store" }
   );
 
@@ -36,8 +38,8 @@ const fetchTracks = async (query: string) => {
     return [] as Track[];
   }
 
-  const payload = (await response.json()) as { data: Track[] };
-  return payload.data ?? [];
+  const payload = (await response.json()) as { tracks: Track[] };
+  return payload.tracks ?? [];
 };
 
 export default async function SubgenrePage({
@@ -62,7 +64,7 @@ export default async function SubgenrePage({
 
   const genreLabel = matchedGenre?.name ?? fallbackLabel(rawGenre);
   const subgenreLabel = matchedSubgenre ?? fallbackLabel(rawSubgenre);
-  const tracks = await fetchTracks(`${genreLabel} ${subgenreLabel}`);
+  const tracks = await fetchTracks(subgenreLabel);
 
   return (
     <main className="mx-auto flex min-h-[1173px] w-full max-w-[600px] flex-col px-6 pb-10 pt-6">
@@ -98,26 +100,34 @@ export default async function SubgenrePage({
       <div className="space-y-4">
         {tracks.map((track) => (
           <div
-            key={track.id}
+            key={`${track.name}-${track.artist}`}
             className="flex items-center gap-3 rounded-xl bg-white/90 px-3 py-2 text-[#341931] shadow-sm dark:bg-white/10 dark:text-white"
           >
             <div className="relative h-12 w-12 overflow-hidden rounded-lg">
-              <Image
-                src={track.album.cover_small}
-                alt={`${track.title} cover`}
-                fill
-                sizes="48px"
-                className="object-cover"
-              />
+              {track.image ? (
+                <Image
+                  src={track.image}
+                  alt={`${track.name} cover`}
+                  fill
+                  sizes="48px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-black/10 text-[10px] text-black/50 dark:bg-white/10 dark:text-white/60">
+                  No art
+                </div>
+              )}
             </div>
             <div className="flex-1">
-              <div className="text-[14px] font-semibold">{track.title}</div>
+              <div className="text-[14px] font-semibold">{track.name}</div>
               <div className="text-[12px] text-black/60 dark:text-white/70">
-                {track.artist?.name ?? "Unknown artist"}
+                {track.artist}
               </div>
             </div>
             <div className="text-[12px] text-black/50 dark:text-white/60">
-              {formatDuration(track.duration)}
+              {typeof track.duration === "number"
+                ? formatDuration(track.duration)
+                : "--:--"}
             </div>
           </div>
         ))}
