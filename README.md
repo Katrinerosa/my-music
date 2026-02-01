@@ -12,6 +12,7 @@ yarn dev
 pnpm dev
 # or
 bun dev
+ls → se filer
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -20,7 +21,7 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 ## Udvikling (dev server)
 
-Du skal kun koere `npm run dev` en gang!! pr. arbejdssession. Når den koerer:
+man skal kun koere `npm run dev` en gang!! pr. arbejdssession. Når den koerer:
 
 - hold terminalen åben
 - lav aendringer i filer (farver, routes, komponenter)
@@ -32,7 +33,24 @@ Hvis du får fejlen `EADDRINUSE: address already in use` på port 3000, betyder 
 lsof -i :3000
 ```
 
-Stop den proces der bruger porten (eller genbrug den aabne fane paa http://localhost:3000).
+Stop den proces der bruger porten (eller genbrug den åbne fane paa http://localhost:3000).
+
+## Terminal kommandoer
+
+- `ls` → se filer
+- `cd` → skift mappe
+- `npm run dev` → kør projektet
+- `rm -rf .next` → ryd lock og cache
+
+Hvis port 3000 er optaget:
+
+```bash
+lsof -i :3000
+kill <PID>
+rm -f .next/dev/lock
+```
+
+`kill <PID>` → Find PID og kør kommandoen.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
