@@ -15,19 +15,26 @@ type LastFmTrack = {
 
 const LASTFM_API_URL = "https://ws.audioscrobbler.com/2.0/";
 
+const isPlaceholderImage = (url?: string) =>
+  !url ||
+  url.includes("2a96cbd8b46e442fc41c2b86b821562f") ||
+  url.includes("/noimage/");
+
 const pickImage = (images?: LastFmImage[]) => {
   if (!images?.length) return undefined;
   const preferred =
     images.find((img) => img.size === "medium") ??
     images.find((img) => img.size === "small") ??
     images[images.length - 1];
-  return preferred?.["#text"] || undefined;
+  const url = preferred?.["#text"];
+  return isPlaceholderImage(url) ? undefined : url || undefined;
 };
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const tag = searchParams.get("tag");
   const limit = searchParams.get("limit") ?? "20";
+  const debug = searchParams.get("debug") === "1";
 
   if (!tag) {
     return NextResponse.json(
@@ -52,7 +59,12 @@ export async function GET(request: Request) {
   url.searchParams.set("limit", limit);
   url.searchParams.set("autocorrect", "1");
 
-  const response = await fetch(url.toString(), { next: { revalidate: 300 } });
+  const response = await fetch(url.toString(), {
+    cache: "no-store",
+    headers: {
+      "User-Agent": "my-music-app/1.0",
+    },
+  });
   if (!response.ok) {
     return NextResponse.json(
       { error: "Failed to fetch Last.fm tracks" },
@@ -61,7 +73,8 @@ export async function GET(request: Request) {
   }
 
   const payload = (await response.json()) as {
-    toptracks?: { track?: LastFmTrack[] };
+    toptracks?: { track?: LastFmTrack[] | LastFmTrack };
+    tracks?: { track?: LastFmTrack[] | LastFmTrack };
     error?: number;
     message?: string;
   };
@@ -73,8 +86,18 @@ export async function GET(request: Request) {
     );
   }
 
+  if (debug) {
+    return NextResponse.json({ tag, payload });
+  }
+
+  const rawTracks = payload.toptracks?.track ?? payload.tracks?.track;
+  const normalizedTracks = Array.isArray(rawTracks)
+    ? rawTracks
+    : rawTracks
+      ? [rawTracks]
+      : [];
   const tracks =
-    payload.toptracks?.track?.map((track) => ({
+    normalizedTracks.map((track) => ({
       name: track.name,
       artist:
         typeof track.artist === "string"

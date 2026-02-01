@@ -24,13 +24,19 @@ type TopTrack = {
 
 const LASTFM_API_URL = "https://ws.audioscrobbler.com/2.0/";
 
+const isPlaceholderImage = (url?: string) =>
+  !url ||
+  url.includes("2a96cbd8b46e442fc41c2b86b821562f") ||
+  url.includes("/noimage/");
+
 const pickImage = (images?: LastFmImage[]) => {
   if (!images?.length) return undefined;
   const preferred =
     images.find((img) => img.size === "medium") ??
     images.find((img) => img.size === "small") ??
     images[images.length - 1];
-  return preferred?.["#text"] || undefined;
+  const url = preferred?.["#text"];
+  return isPlaceholderImage(url) ? undefined : url || undefined;
 };
 
 const mapTrack = (track: LovedTrack | TopTrack) => ({

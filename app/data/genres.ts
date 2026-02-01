@@ -30,7 +30,7 @@ export const genres = [
   {
     name: "Dance",
     colors: { light: "#10B981", dark: "#0D9166" },
-    subgenres: ["Mouse", "Techno", "Trance"],
+    subgenres: ["House", "Techno", "Trance"],
   },
   {
     name: "Electronic",

@@ -63,7 +63,7 @@ export default function LoginPage() {
       </div>
 
       <Link
-        href="/api/lastfm/auth"
+        href="/api/lastfm/login"
         className="mt-10 inline-flex items-center justify-center text-[12px] font-semibold uppercase tracking-[0.2em] text-white/80"
       >
         Connect Last.fm

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { genres as localGenres } from "@/app/data/genres";
+import { genres as localGenres } from "@/data/genres";
 
 type DeezerGenre = {
   id: string;
