@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { headers } from "next/headers";
+import TrackPlayer from "@/components/TrackPlayer";
 
 type Track = {
   name: string;
@@ -10,18 +10,6 @@ type Track = {
 };
 
 const PUBLIC_LASTFM_USER = "Katrinerosa";
-
-const formatDuration = (seconds: number) => {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins}:${secs.toString().padStart(2, "0")}`;
-};
-
-const fallbackCovers = [
-  "/covers/cover-1.svg",
-  "/covers/cover-2.svg",
-  "/covers/cover-3.svg",
-];
 
 const fetchLovedTracks = async (user: string) => {
   const headerList = await headers();
@@ -93,44 +81,13 @@ export default async function LovedTracksPage() {
         </div>
       ) : null}
 
-      <div className="space-y-4">
-        {tracks.map((track, index) => {
-          const artSrc =
-            track.image || fallbackCovers[index % fallbackCovers.length];
-          return (
-            <div
-              key={`${track.name}-${track.artist}`}
-              className="flex items-center gap-3 rounded-xl bg-white/90 px-3 py-2 text-[#341931] shadow-sm dark:bg-white/10 dark:text-white"
-            >
-              <div className="relative h-12 w-12 overflow-hidden rounded-lg">
-                <Image
-                  src={artSrc}
-                  alt={`${track.name} cover`}
-                  fill
-                  sizes="48px"
-                  className="object-cover"
-                />
-              </div>
-              <div className="flex-1">
-                <div className="text-[14px] font-semibold">{track.name}</div>
-                <div className="text-[12px] text-black/60 dark:text-white/70">
-                  {track.artist}
-                </div>
-              </div>
-              <div className="text-[12px] text-black/50 dark:text-white/60">
-                {typeof track.duration === "number"
-                  ? formatDuration(track.duration)
-                  : "--:--"}
-              </div>
-            </div>
-          );
-        })}
-        {!tracks.length && !error ? (
-          <div className="rounded-xl bg-white/90 px-4 py-3 text-[13px] text-black/70 dark:bg-white/10 dark:text-white/70">
-            Ingen tracks i din liste endnu.
-          </div>
-        ) : null}
-      </div>
+      {tracks.length ? (
+        <TrackPlayer tracks={tracks} />
+      ) : !error ? (
+        <div className="rounded-xl bg-white/90 px-4 py-3 text-[13px] text-black/70 dark:bg-white/10 dark:text-white/70">
+          Ingen tracks i din liste endnu.
+        </div>
+      ) : null}
     </main>
   );
 }

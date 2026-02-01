@@ -26,6 +26,36 @@ Dato: 2026-02-01
 - Subgenre-sider viser nu tracks (fx Rock Hits → Classic Rock).
 - Min liste (/loved) viser Loved Tracks uden login.
 
+## YouTube-videoer (sådan gør man)
+
+For at få en bestemt video på et track:
+
+1) Find YouTube-linket til sangen.
+2) Kopiér video-ID’et (det der står efter `v=` i URL’en).
+3) Tilføj en linje i `app/data/youtube-map.ts` i formatet:
+
+```ts
+"tracknavn|artist": "VIDEO_ID"
+```
+
+Eksempel:
+
+```ts
+"paint it black|the rolling stones": "O4irXQhgMqg"
+```
+
+**Hvorfor en map?**
+- man kan kun få metadata (info om sangen) fra Last.fm (ingen video-id).
+- Mappen giver os en stabil, manuel kobling mellem “track + artist” og en bestemt YouTube‑video.
+
+**Hvor peger den hen?**
+- Mappen bliver brugt af `app/components/TrackPlayer.tsx`.
+- Når der findes et ID, embedder:  
+  `https://www.youtube.com/embed/<VIDEO_ID>`
+- Hvis der ikke findes et ID, falder appen tilbage til YouTube‑søgning.
+
+Hvis der ikke findes et ID, bruger appen automatisk YouTube-søgning.
+
 ## Noter / kendte ting
 
 - Last.fm giver ikke lydfiler, kun metadata og billeder.

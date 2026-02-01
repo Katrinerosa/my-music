@@ -21,19 +21,28 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 ## Udvikling (dev server)
 
-man skal kun koere `npm run dev` en gang!! pr. arbejdssession. Når den koerer:
+man skal kun køre `npm run dev` en gang!! pr. arbejdssession. Når den kører:
 
 - hold terminalen åben
 - lav aendringer i filer (farver, routes, komponenter)
 - siden opdaterer automatisk (hot reload) eller ved en normal refresh
 
-Hvis du får fejlen `EADDRINUSE: address already in use` på port 3000, betyder det at dev-serveren allerede kører:
+Hvis man får fejlen `EADDRINUSE: address already in use` på port 3000, betyder det at dev-serveren allerede kører:
 
 ```bash
 lsof -i :3000
 ```
 
 Stop den proces der bruger porten (eller genbrug den åbne fane paa http://localhost:3000).
+
+## Seneste ændringer (kort)
+
+- Last.fm tag API virker nu (læser både `toptracks` og `tracks`).
+- `@/data/...` import fix (ingen `@/app/...` alias-fejl).
+- “Mouse” → “House” i subgenre + tag-map.
+- Ny side: `/loved` (Min liste fra Last.fm uden login).
+- YouTube‑afspiller + `youtube-map` til faste video‑ID’er.
+- Fallback cover‑billeder i `public/covers/`.
 
 ## Terminal kommandoer
 
