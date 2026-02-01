@@ -2,12 +2,12 @@
   "name": "my-music",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev --hostname 127.0.0.1",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
-  },
+ "scripts": {
+  "dev": "next dev -p 3000 --hostname 127.0.0.1",
+  "build": "next build",
+  "start": "next start -p 3000",
+  "lint": "eslint"
+},
   "dependencies": {
     "next": "16.1.1",
     "react": "19.2.3",

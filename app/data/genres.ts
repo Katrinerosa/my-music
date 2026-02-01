@@ -1,8 +1,8 @@
 export const genres = [
   {
-    name: "Alternative",
+    name: "Rock Hits",
     colors: { light: "#D70060", dark: "#B0004D" },
-    subgenres: ["Indie Rock", "Alternative Rock", "Post-Punk", "Grunge"],
+    subgenres: ["Classic Rock", "Alternative Rock", "Post-Punk", "Grunge"],
   },
   {
     name: "Blues",

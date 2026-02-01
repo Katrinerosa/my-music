@@ -18,6 +18,22 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+## Udvikling (dev server)
+
+Du skal kun koere `npm run dev` en gang!! pr. arbejdssession. Når den koerer:
+
+- hold terminalen åben
+- lav aendringer i filer (farver, routes, komponenter)
+- siden opdaterer automatisk (hot reload) eller ved en normal refresh
+
+Hvis du får fejlen `EADDRINUSE: address already in use` på port 3000, betyder det at dev-serveren allerede kører:
+
+```bash
+lsof -i :3000
+```
+
+Stop den proces der bruger porten (eller genbrug den aabne fane paa http://localhost:3000).
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More

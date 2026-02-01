@@ -142,12 +142,20 @@ export default function Home() {
             </div>
           ) : null}
         </div>
-        <Link
-          href="/login"
-          className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/70 dark:text-white/70"
-        >
-          {lastfmUser ? "Account" : "Login"}
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/loved"
+            className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/70 dark:text-white/70"
+          >
+            Min liste
+          </Link>
+          <Link
+            href="/login"
+            className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/70 dark:text-white/70"
+          >
+            {lastfmUser ? "Account" : "Login"}
+          </Link>
+        </div>
       </div>
 
       <div className="space-y-4">

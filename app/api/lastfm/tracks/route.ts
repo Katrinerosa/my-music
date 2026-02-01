@@ -50,6 +50,7 @@ export async function GET(request: Request) {
   url.searchParams.set("api_key", apiKey);
   url.searchParams.set("format", "json");
   url.searchParams.set("limit", limit);
+  url.searchParams.set("autocorrect", "1");
 
   const response = await fetch(url.toString(), { next: { revalidate: 300 } });
   if (!response.ok) {
@@ -61,7 +62,16 @@ export async function GET(request: Request) {
 
   const payload = (await response.json()) as {
     toptracks?: { track?: LastFmTrack[] };
+    error?: number;
+    message?: string;
   };
+
+  if (payload.error) {
+    return NextResponse.json(
+      { error: payload.message ?? "Last.fm error" },
+      { status: 502 }
+    );
+  }
 
   const tracks =
     payload.toptracks?.track?.map((track) => ({

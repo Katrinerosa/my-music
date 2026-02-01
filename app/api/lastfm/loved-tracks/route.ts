@@ -54,8 +54,10 @@ export async function GET(request: Request) {
   }
 
   const cookieStore = await cookies();
-  const user = cookieStore.get("lastfm_user")?.value;
   const { searchParams } = new URL(request.url);
+  const cookieUser = cookieStore.get("lastfm_user")?.value;
+  const requestedUser = searchParams.get("user") ?? undefined;
+  const user = requestedUser || cookieUser;
   const tag = searchParams.get("tag");
   const limit = searchParams.get("limit") ?? "20";
 
@@ -94,5 +96,5 @@ export async function GET(request: Request) {
     ? payload.lovedtracks?.track?.map(mapTrack) ?? []
     : payload.toptracks?.track?.map(mapTrack) ?? [];
 
-  return NextResponse.json({ tracks, source: user ? "loved" : "tag" });
+  return NextResponse.json({ tracks, source: user ? "user" : "tag" });
 }

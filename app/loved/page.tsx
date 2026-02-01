@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { headers } from "next/headers";
-import { genres as localGenres } from "@/app/data/genres";
 
 type Track = {
   name: string;
@@ -10,65 +9,25 @@ type Track = {
   image?: string;
 };
 
+const PUBLIC_LASTFM_USER = "Katrinerosa";
+
 const formatDuration = (seconds: number) => {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 };
 
-const toSlug = (value: string) =>
-  value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-
-const tagOverrides: Record<string, string> = {
-  "acoustic-blues": "blues",
-  "blues-rock": "blues rock",
-  "canadian-blues": "blues",
-  "jazz-blues": "jazz",
-  "piano-blues": "blues",
-  "soul-blues": "soul",
-  "swamp-blues": "blues",
-  "classic-rock": "classic rock",
-  "alternative-rock": "alternative rock",
-  "post-punk": "post-punk",
-  grunge: "grunge",
-  baroque: "baroque",
-  romantic: "romantic classical",
-  modern: "contemporary classical",
-  chamber: "chamber music",
-  "outlaw-country": "outlaw country",
-  "country-pop": "country pop",
-  bluegrass: "bluegrass",
-  mouse: "electronic",
-  techno: "techno",
-  trance: "trance",
-  ambient: "ambient",
-  synthwave: "synthwave",
-  idm: "idm",
-  hiit: "workout",
-  running: "running",
-  cycling: "cycling",
-  "boom-bap": "boom bap",
-  trap: "trap",
-  conscious: "conscious hip hop",
-  ebm: "ebm",
-  "industrial-rock": "industrial rock",
-  "electro-industrial": "industrial",
-};
-
-const resolveTag = (rawSubgenre: string, fallback: string) =>
-  tagOverrides[rawSubgenre] ?? fallback;
-
-const fetchApi = async (path: string) => {
+const fetchLovedTracks = async (user: string) => {
   const headerList = await headers();
   const host = headerList.get("host") ?? "localhost:3000";
   const protocol =
     headerList.get("x-forwarded-proto") ??
     (host.startsWith("localhost") ? "http" : "https");
   const baseUrl = `${protocol}://${host}`;
-  const response = await fetch(`${baseUrl}${path}`, { cache: "no-store" });
+  const response = await fetch(
+    `${baseUrl}/api/lastfm/loved-tracks?user=${encodeURIComponent(user)}`,
+    { cache: "no-store" }
+  );
 
   if (!response.ok) {
     return { tracks: [] as Track[], error: "Failed to fetch tracks" };
@@ -84,66 +43,8 @@ const fetchApi = async (path: string) => {
   return { tracks: payload.tracks ?? [], error: null };
 };
 
-const fetchTracks = async (tag: string) =>
-  fetchApi(`/api/lastfm/tracks?tag=${encodeURIComponent(tag)}`);
-
-const fetchTracksWithFallback = async (
-  primaryTag: string,
-  fallbackTag?: string
-) => {
-  const primary = await fetchTracks(primaryTag);
-  if (primary.tracks.length) {
-    return { ...primary, usedTag: primaryTag, isFallback: false };
-  }
-
-  if (fallbackTag) {
-    const fallback = await fetchTracks(fallbackTag);
-    if (fallback.tracks.length) {
-      return { ...fallback, usedTag: fallbackTag, isFallback: true };
-    }
-    return {
-      tracks: [],
-      error: primary.error ?? fallback.error,
-      usedTag: fallbackTag,
-      isFallback: true,
-    };
-  }
-
-  return {
-    tracks: [],
-    error: primary.error ?? null,
-    usedTag: primaryTag,
-    isFallback: false,
-  };
-};
-
-export default async function SubgenrePage({
-  params,
-}: {
-  params:
-    | { genre: string; subgenre: string }
-    | Promise<{ genre: string; subgenre: string }>;
-}) {
-  const resolvedParams = await Promise.resolve(params);
-  const rawGenre = resolvedParams.genre ?? "";
-  const rawSubgenre = resolvedParams.subgenre ?? "";
-  const matchedGenre = localGenres.find(
-    (genre) => toSlug(genre.name) === rawGenre
-  );
-  const matchedSubgenre = matchedGenre?.subgenres?.find(
-    (subgenre) => toSlug(subgenre) === rawSubgenre
-  );
-
-  const fallbackLabel = (value: string) =>
-    value.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
-
-  const genreLabel = matchedGenre?.name ?? fallbackLabel(rawGenre);
-  const subgenreLabel = matchedSubgenre ?? fallbackLabel(rawSubgenre);
-  const resolvedTag = resolveTag(rawSubgenre, subgenreLabel);
-  const { tracks, isFallback, error } = await fetchTracksWithFallback(
-    resolvedTag,
-    genreLabel
-  );
+export default async function LovedTracksPage() {
+  const { tracks, error } = await fetchLovedTracks(PUBLIC_LASTFM_USER);
 
   return (
     <main className="mx-auto flex min-h-[1173px] w-full max-w-[600px] flex-col px-6 pb-10 pt-6">
@@ -169,30 +70,20 @@ export default async function SubgenrePage({
 
       <div className="mb-[25px]">
         <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-black/70 dark:text-white/70">
-          {genreLabel}
+          Katrinerosa
         </div>
         <h1 className="bg-gradient-to-r from-[#EE0979] to-[#FF6A00] bg-clip-text text-[32px] font-bold text-transparent">
-          {subgenreLabel}
+          Min liste
         </h1>
       </div>
 
-      {resolvedTag !== subgenreLabel ? (
-        <div className="mb-2 rounded-xl bg-white/90 px-4 py-2 text-[12px] text-black/70 dark:bg-white/10 dark:text-white/70">
-          Subgenre-tags matcher ikke altid Last.fm. Vi bruger derfor et
-          hardcoded tag-map til at finde relevante tracks.
-        </div>
-      ) : null}
-
-      {isFallback && tracks.length ? (
-        <div className="mb-4 rounded-xl bg-white/90 px-4 py-2 text-[13px] text-black/70 dark:bg-white/10 dark:text-white/70">
-          No tracks found for {subgenreLabel}. Showing top tracks for{" "}
-          {genreLabel}.
-        </div>
-      ) : null}
+      <div className="mb-4 rounded-xl bg-white/90 px-4 py-2 text-[12px] text-black/70 dark:bg-white/10 dark:text-white/70">
+        Viser Loved tracks direkte fra Last.fm uden login.
+      </div>
 
       {error ? (
         <div className="mb-4 rounded-xl bg-white/90 px-4 py-3 text-[13px] text-black/70 dark:bg-white/10 dark:text-white/70">
-          Last.fm fejl: {error}
+          Kunne ikke hente tracks lige nu.
         </div>
       ) : null}
 
@@ -232,7 +123,7 @@ export default async function SubgenrePage({
         ))}
         {!tracks.length && !error ? (
           <div className="rounded-xl bg-white/90 px-4 py-3 text-[13px] text-black/70 dark:bg-white/10 dark:text-white/70">
-            No tracks found for this subgenre yet.
+            Ingen tracks i din liste endnu.
           </div>
         ) : null}
       </div>
