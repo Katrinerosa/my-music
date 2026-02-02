@@ -13,7 +13,7 @@ const PUBLIC_LASTFM_USER = "Katrinerosa";
 
 const fetchLovedTracks = async (user: string) => {
   const headerList = await headers();
-  const host = headerList.get("host") ?? "localhost:3000";
+  const host = headerList.get("host") ?? "http://127.0.0.1:3000/";
   const protocol =
     headerList.get("x-forwarded-proto") ??
     (host.startsWith("localhost") ? "http" : "https");

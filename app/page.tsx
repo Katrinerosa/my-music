@@ -87,7 +87,7 @@ export default function Home() {
         });
         setOrderedGenres(nextGenres);
       } catch {
-        // Keep local order if the API is unavailable.
+        // behold local order hvis api ikke svarer.
       }
     };
 

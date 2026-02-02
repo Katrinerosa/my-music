@@ -62,15 +62,30 @@ const resolveTag = (rawSubgenre: string, fallback: string) => {
 
 const fetchApi = async (path: string) => {
   const headerList = await headers();
-  const host = headerList.get("host") ?? "localhost:3000";
+ const host = headerList.get("host") ?? "127.0.0.1:3000";
+  const cookie = headerList.get("cookie");
   const protocol =
     headerList.get("x-forwarded-proto") ??
     (host.startsWith("localhost") ? "http" : "https");
   const baseUrl = `${protocol}://${host}`;
-  const response = await fetch(`${baseUrl}${path}`, { cache: "no-store" });
+  const response = await fetch(`${baseUrl}${path}`, {
+    cache: "no-store",
+    headers: cookie ? { cookie } : undefined,
+  });
 
   if (!response.ok) {
-    return { tracks: [] as Track[], error: "Failed to fetch tracks" };
+    try {
+      const payload = (await response.json()) as { error?: string };
+      if (payload?.error) {
+        return { tracks: [] as Track[], error: payload.error };
+      }
+    } catch {
+      // Ignore parse errors.
+    }
+    return {
+      tracks: [] as Track[],
+      error: `Failed to fetch tracks (${response.status})`,
+    };
   }
 
   const payload = (await response.json()) as {
@@ -83,8 +98,8 @@ const fetchApi = async (path: string) => {
   return { tracks: payload.tracks ?? [], error: null };
 };
 
-const fetchTracks = async (tag: string) =>
-  fetchApi(`/api/lastfm/tracks?tag=${encodeURIComponent(tag)}`);
+const fetchTracks = async (query: string) =>
+  fetchApi(`/api/spotify/tracks?query=${encodeURIComponent(query)}`);
 
 const fetchTracksWithFallback = async (
   primaryTag: string,
@@ -177,8 +192,8 @@ export default async function SubgenrePage({
 
       {resolvedTag !== subgenreLabel ? (
         <div className="mb-2 rounded-xl bg-white/90 px-4 py-2 text-[12px] text-black/70 dark:bg-white/10 dark:text-white/70">
-          Subgenre-tags matcher ikke altid jeg bruger derfor et mega
-          hardcoded tag-map til at finde relevante tracks 😁.
+          Subgenre-navne matcher ikke altid Spotify-søgning. Vi bruger derfor
+          et hardcoded map til at finde relevante tracks.
         </div>
       ) : null}
 
@@ -191,7 +206,7 @@ export default async function SubgenrePage({
 
       {error ? (
         <div className="mb-4 rounded-xl bg-white/90 px-4 py-3 text-[13px] text-black/70 dark:bg-white/10 dark:text-white/70">
-           fejl: {error}
+          Spotify fejl: {error}
         </div>
       ) : null}
 
@@ -199,7 +214,7 @@ export default async function SubgenrePage({
         <TrackPlayer tracks={tracks} />
       ) : !error ? (
         <div className="rounded-xl bg-white/90 px-4 py-3 text-[13px] text-black/70 dark:bg-white/10 dark:text-white/70">
-          No tracks found for this subgenre yet.
+          No tracks found for this search yet.
         </div>
       ) : null}
     </main>

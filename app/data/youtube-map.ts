@@ -2,7 +2,7 @@ type TrackLookup = {
   name: string;
   artist: string;
 };
-
+//virker kun i last.fm 
 const normalize = (value: string) =>
   value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
