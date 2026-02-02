@@ -177,7 +177,7 @@ export default async function SubgenrePage({
 
       {resolvedTag !== subgenreLabel ? (
         <div className="mb-2 rounded-xl bg-white/90 px-4 py-2 text-[12px] text-black/70 dark:bg-white/10 dark:text-white/70">
-          Subgenre-tags matcher ikke altid Last.fm. jeg bruger derfor et mega
+          Subgenre-tags matcher ikke altid jeg bruger derfor et mega
           hardcoded tag-map til at finde relevante tracks 😁.
         </div>
       ) : null}
@@ -191,7 +191,7 @@ export default async function SubgenrePage({
 
       {error ? (
         <div className="mb-4 rounded-xl bg-white/90 px-4 py-3 text-[13px] text-black/70 dark:bg-white/10 dark:text-white/70">
-          Last.fm fejl: {error}
+           fejl: {error}
         </div>
       ) : null}
 

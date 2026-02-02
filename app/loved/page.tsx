@@ -72,7 +72,7 @@ export default async function LovedTracksPage() {
       </div>
 
       <div className="mb-4 rounded-xl bg-white/90 px-4 py-2 text-[12px] text-black/70 dark:bg-white/10 dark:text-white/70">
-        Viser Loved tracks direkte fra Last.fm uden login.
+        Viser Loved tracks.
       </div>
 
       {error ? (

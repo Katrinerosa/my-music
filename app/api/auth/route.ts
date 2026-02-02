@@ -22,7 +22,10 @@ export async function GET() {
   url.searchParams.set("response_type", "code");
   url.searchParams.set("redirect_uri", redirectUri);
   url.searchParams.set("state", state);
-  url.searchParams.set("scope", "user-read-email user-read-private");
+  url.searchParams.set(
+    "scope",
+    "user-read-email user-read-private playlist-read-private playlist-read-collaborative"
+  );
 
   const response = NextResponse.redirect(url.toString());
   response.cookies.set("spotify_auth_state", state, {

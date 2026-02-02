@@ -1,22 +1,23 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+
+const clientId = process.env.SPOTIFY_CLIENT_ID;
+const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
 
 const SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token";
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+  const { searchParams } = new URL(request.url); // FIXED!
   const code = searchParams.get("code");
   const state = searchParams.get("state");
 
   if (!code || !state) {
     return NextResponse.json(
       { error: "Missing code or state" },
-      { status: 400 }
+      { status: 400 },
     );
   }
-
-  const clientId = process.env.SPOTIFY_CLIENT_ID;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-  const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
 
   if (!clientId || !clientSecret || !redirectUri) {
     return NextResponse.json(
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
         error:
           "Missing SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, or SPOTIFY_REDIRECT_URI",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -40,7 +41,7 @@ export async function GET(request: Request) {
   }
 
   const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString(
-    "base64"
+    "base64",
   );
 
   const body = new URLSearchParams();
@@ -60,7 +61,7 @@ export async function GET(request: Request) {
   if (!response.ok) {
     return NextResponse.json(
       { error: "Failed to exchange code for token" },
-      { status: 502 }
+      { status: 502 },
     );
   }
 
@@ -70,16 +71,40 @@ export async function GET(request: Request) {
     expires_in: number;
   };
 
-  const redirectUrl = new URL("/", request.url);
+  // Get user ID for playlist creation
+  const userRes = await fetch("https://api.spotify.com/v1/me", {
+    headers: {
+      Authorization: `Bearer ${payload.access_token}`,
+    },
+  });
+
+  if (!userRes.ok) {
+    return NextResponse.json(
+      { error: "Failed to fetch user profile" },
+      { status: 502 },
+    );
+  }
+
+  const user = await userRes.json();
+  console.log("Spotify user ID:", user.id);
+
+  const redirectUrl = redirectUri ? new URL(redirectUri) : new URL(request.url);
+  redirectUrl.pathname = "/";
+  redirectUrl.search = "";
+  redirectUrl.hash = "";
   const responseWithCookies = NextResponse.redirect(redirectUrl.toString());
 
-  responseWithCookies.cookies.set("spotify_access_token", payload.access_token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    sameSite: "lax",
-    maxAge: payload.expires_in,
-  });
+  responseWithCookies.cookies.set(
+    "spotify_access_token",
+    payload.access_token,
+    {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      sameSite: "lax",
+      maxAge: payload.expires_in,
+    },
+  );
 
   if (payload.refresh_token) {
     responseWithCookies.cookies.set(
@@ -91,7 +116,7 @@ export async function GET(request: Request) {
         path: "/",
         sameSite: "lax",
         maxAge: 60 * 60 * 24 * 30,
-      }
+      },
     );
   }
 

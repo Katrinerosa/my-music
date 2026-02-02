@@ -70,7 +70,7 @@ export default function LoginPage() {
       </Link>
 
       <Link
-        href="/api/spotify/auth"
+        href="/api/auth"
         className="mt-4 inline-flex items-center justify-center text-[12px] font-semibold uppercase tracking-[0.2em] text-white/80"
       >
         Connect Spotify
