@@ -44,6 +44,33 @@ Stop den proces der bruger porten (eller genbrug den åbne fane paa http://local
 - YouTube‑afspiller + `youtube-map` til faste video‑ID’er.
 - Fallback cover‑billeder i `public/covers/`.
 
+## Login og sikkerhed (crypto)
+
+- I Spotify‑login laver jeg en tilfældig `state` med `crypto.randomBytes(16)`.
+- Den sendes med til Spotify, og jeg tjekker at den matcher i `/api/auth/callback` før login godkendes.
+- Det beskytter mod CSRF (Cross‑Site Request Forgery), hvor en anden side prøver at få min browser til at logge ind uden at jeg selv har startet det.
+- I Last.fm callback laver jeg en MD5‑signatur med `crypto.createHash("md5")`, fordi Last.fm kræver en signeret `auth.getSession` request.
+- Det handler ikke om “for mange login‑forsøg”, men om at login‑flowet er sikkert og kan valideres.
+
+## Proxy (login-gate)
+
+- Jeg bruger `proxy.ts` (som Brian viste) til at køre kode før requesten er færdig.
+- Her tjekker jeg cookie og sender til `/login`, hvis man ikke er logget ind.
+
+## OAuth (meget tydeligt)
+
+- Spotify‑login er **OAuth 2.0 Authorization Code Flow** (redirect → code + state → token‑exchange i `/api/auth/callback`).
+- Last.fm bruger deres WebAuth + signeret `auth.getSession` (MD5), ikke OAuth 2.0.
+- Flowet er: redirect til udbyderen → brugeren accepterer → callback → vi får tokens → gemmer i cookies → redirect tilbage til appen.
+- Det er derfor login ikke er et almindeligt brugernavn/kodeord i appen, men en OAuth‑godkendelse.
+
+## Kilder
+
+- https://nodejs.org/api/crypto.html
+- https://developer.spotify.com/documentation/web-api/tutorials/code-flow
+- https://www.last.fm/api/webauth
+- https://owasp.org/www-community/attacks/csrf
+
 ## Terminal kommandoer
 
 - `ls` → se filer

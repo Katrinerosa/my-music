@@ -53,9 +53,6 @@ export default function Home() {
   const [openGenre, setOpenGenre] = useState<string | null>(null);
   const [orderedGenres, setOrderedGenres] = useState(genres);
   const [lastfmUser, setLastfmUser] = useState<string | null>(null);
-  const [genreImages, setGenreImages] = useState<
-    Record<string, string | undefined>
-  >({});
 
   useEffect(() => {
     const loadGenres = async () => {
@@ -69,13 +66,6 @@ export default function Home() {
         if (!order.length) {
           return;
         }
-        const imageMap: Record<string, string> = {};
-        payload.data.forEach((item) => {
-          if (item.picture_medium) {
-            imageMap[item.localName] = item.picture_medium;
-          }
-        });
-        setGenreImages(imageMap);
         const orderMap = new Map(order.map((name, index) => [name, index]));
         const nextGenres = [...genres].sort((a, b) => {
           const aIndex = orderMap.get(a.name);
@@ -87,7 +77,7 @@ export default function Home() {
         });
         setOrderedGenres(nextGenres);
       } catch {
-        // behold local order hvis api ikke svarer.
+        // behold local orden hvis api ikke svarer.
       }
     };
 
@@ -192,15 +182,6 @@ export default function Home() {
               <div
                 id={`subgenres-${genre.name}`}
                 className="mt-2 space-y-1 rounded-lg bg-white/90 px-3 py-2 text-[15px] font-medium text-black dark:bg-black/40 dark:text-white"
-                style={
-                  genreImages[genre.name]
-                    ? {
-                        backgroundImage: `linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url(${genreImages[genre.name]})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                      }
-                    : undefined
-                }
               >
                 {genre.subgenres.map((subgenre) => (
                   <Link

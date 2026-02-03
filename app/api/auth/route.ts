@@ -1,4 +1,4 @@
-import crypto from "node:crypto";
+import crypto from "node:crypto"; 
 import { NextResponse } from "next/server";
 
 const SPOTIFY_AUTH_URL = "https://accounts.spotify.com/authorize";
@@ -17,6 +17,7 @@ export async function GET() {
   }
 
   const state = createState();
+  console.log("[spotify-auth] generated state:", state);
   const url = new URL(SPOTIFY_AUTH_URL);
   url.searchParams.set("client_id", clientId);
   url.searchParams.set("response_type", "code");
@@ -24,7 +25,7 @@ export async function GET() {
   url.searchParams.set("state", state);
   url.searchParams.set(
     "scope",
-    "user-read-email user-read-private playlist-read-private playlist-read-collaborative"
+    "user-read-email user-read-private playlist-read-private playlist-read-collaborative user-library-read"
   );
 
   const response = NextResponse.redirect(url.toString());

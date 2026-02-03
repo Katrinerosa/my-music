@@ -11,6 +11,8 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url); // FIXED!
   const code = searchParams.get("code");
   const state = searchParams.get("state");
+  console.log("[spotify-callback] url:", request.url);
+  console.log("[spotify-callback] state from query:", state);
 
   if (!code || !state) {
     return NextResponse.json(
@@ -36,6 +38,7 @@ export async function GET(request: Request) {
     .find((cookie) => cookie.startsWith("spotify_auth_state="))
     ?.split("=")[1];
 
+  console.log("[spotify-callback] stored cookie state:", storedState);
   if (!storedState || storedState !== state) {
     return NextResponse.json({ error: "Invalid state" }, { status: 400 });
   }

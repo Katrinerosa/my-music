@@ -66,6 +66,25 @@ Hvis der ikke findes et ID, bruger appen automatisk YouTube-søgning.
 - Last.fm giver ikke lydfiler, kun metadata og billeder.
 - Hvis der ses tom liste efter ændringer, ryd cache: `rm -rf .next` og start `npm run dev` igen.
 
+## Login-sikkerhed (crypto)
+
+- Jeg bruger `crypto.randomBytes` til at lave en tilfældig `state` i Spotify-login, og jeg tjekker den i `/api/auth/callback` før login godkendes.
+- Det beskytter mod CSRF (Cross‑Site Request Forgery), hvor en anden side prøver at få min browser til at logge ind uden at jeg selv har startet det.
+- Jeg bruger `crypto.createHash("md5")` i Last.fm callback til at signere `auth.getSession`, fordi Last.fm kræver en signatur.
+- Det handler ikke om “for mange login‑forsøg”, men om at login‑flowet er sikkert og kan valideres.
+
+## Proxy (login-gate)
+
+- Jeg bruger `proxy.ts` (som Brian viste) til at køre kode før requesten er færdig.
+- Her tjekker jeg cookie og sender til `/login`, hvis man ikke er logget ind.
+
+## Kilder
+
+- https://nodejs.org/api/crypto.html
+- https://developer.spotify.com/documentation/web-api/tutorials/code-flow
+- https://www.last.fm/api/webauth
+- https://owasp.org/www-community/attacks/csrf
+
 ## Brian login vs. min opgave (login/proxy)
 
 **Hvad er middleware (`middleware.ts`)?**

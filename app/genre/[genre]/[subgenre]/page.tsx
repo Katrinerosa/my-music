@@ -69,7 +69,7 @@ const fetchApi = async (path: string) => {
     (host.startsWith("localhost") ? "http" : "https");
   const baseUrl = `${protocol}://${host}`;
   const response = await fetch(`${baseUrl}${path}`, {
-    cache: "no-store",
+    next: { revalidate: 300 },
     headers: cookie ? { cookie } : undefined,
   });
 
